@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 
 import InvoiceIndex from "@/pages/invoices/Index.vue";
+import InvoiceCreate from "@/pages/invoices/Create.vue";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import NotFound from "@/NotFound.vue";
 const routes = [
@@ -11,9 +12,14 @@ const routes = [
         children: [
             {
                 path: "/invoices",
-                name: "invoice.index",
-                component: InvoiceIndex,
                 name: "invoices.index",
+                component: InvoiceIndex,
+            },
+
+            {
+                path: "/invoices/create",
+                name: "invoices.create",
+                component: InvoiceCreate,
             },
 
             {

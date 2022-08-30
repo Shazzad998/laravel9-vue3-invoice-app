@@ -583,8 +583,10 @@
                     </ul>
                 </div>
             </header>
-            <main class="h-full overflow-y-auto" @click="closeSideMenu">
-                <router-view></router-view>
+            <main class="h-full pb-16 overflow-y-auto" @click="closeSideMenu">
+                <div class="container grid px-6 mx-auto">
+                    <router-view></router-view>
+                </div>
             </main>
         </div>
     </div>
