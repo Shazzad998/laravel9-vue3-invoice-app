@@ -26,7 +26,6 @@ const search = async () => {
 };
 
 const createInvoice = async () => {
-    let response = await axios.get("/api/invoices/create");
     router.push({ name: "invoices.create" });
 };
 </script>

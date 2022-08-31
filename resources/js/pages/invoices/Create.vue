@@ -1,8 +1,31 @@
 <script setup>
+import axios from "axios";
+import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import ButtonLink from "../../components/ButtonLink.vue";
 
 const router = useRouter();
+
+let form = ref([]);
+let customers = ref([]);
+
+onMounted(async () => {
+    getDefaultData();
+    getCustomers();
+});
+
+const getCustomers = async () => {
+    let response = await axios.get("/api/customers");
+
+    customers.value = response.data.customers;
+    console.log(customers.value);
+};
+
+const getDefaultData = async () => {
+    let response = await axios.get("/api/invoices/create");
+
+    form.value = response.data;
+};
 
 const viewInvoices = () => {
     router.push({ name: "invoices.index" });
@@ -31,13 +54,18 @@ const viewInvoices = () => {
             <select
                 class="block w-full mt-1 text-sm dark:text-gray-300 dark:border-gray-600 dark:bg-gray-700 form-select focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:focus:shadow-outline-gray rounded-md"
             >
-                <option>Customer 1</option>
-                <option>Customer 2</option>
-                <option>Customer 3</option>
-                <option>Customer 4</option>
-                <option>Customer 5</option>
+                <option>Select A Customer</option>
+                <option
+                    v-for="customer in customers"
+                    :key="customer.id"
+                    :value="customer.id"
+                    class="text-gray-100"
+                >
+                    {{ customer.first_name }}
+                </option>
             </select>
         </label>
+
         <label class="block text-sm">
             <span class="text-gray-700 dark:text-gray-400">Name</span>
             <input
