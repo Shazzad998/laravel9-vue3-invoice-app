@@ -1,5 +1,6 @@
 <script setup>
 import axios from "axios";
+import { stringify } from "querystring";
 import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import ButtonLink from "../../components/ButtonLink.vue";
@@ -8,17 +9,58 @@ const router = useRouter();
 
 let form = ref([]);
 let customers = ref([]);
-let item = ref([]);
+let customer_id = ref();
 let listCart = ref([]);
 let products = ref([]);
-
 const isModalOpen = ref(false);
+const subtotal = () => {
+    let total = 0;
+    listCart.value.map((item) => {
+        if (item.quantity) {
+            total = total + item.unit_price * item.quantity;
+        }
+    });
+    return total;
+};
+const total = () => {
+    return subtotal() - form.value.discount;
+};
 
+// functions
 onMounted(async () => {
     getDefaultData();
     getCustomers();
     getProducts();
 });
+
+const onSave = () => {
+    if (listCart.value.length >= 1) {
+        let subtotal = 0;
+        subtotal = subtotal();
+
+        let total = 0;
+        total = total();
+
+        const formData = new FormData();
+        formData.append("invoice_item", stringify(listCart.value));
+        formData.append("customer_id", customer_id.value);
+        formData.append("date", form.value.date);
+        formData.append("due_date", form.value.due_date);
+        formData.append("number", form.value.number);
+        formData.append("reference", form.value.reference);
+        formData.append("discount", form.value.discount);
+        formData.append("subtotal", form.value.subtotal);
+        formData.append("total", form.value.total);
+        formData.append(
+            "terms_and_conditions",
+            form.value.terms_and_conditions
+        );
+
+        axios.post("/api/invoices", formData);
+        listCart.value = [];
+        router.push("/");
+    }
+};
 
 const openModal = () => {
     isModalOpen.value = true;
@@ -34,7 +76,7 @@ const addToCart = (item) => {
         item_code: item.item_code,
         item_description: item.item_description,
         unit_price: item.unit_price,
-        quantity: item.quantity,
+        quantity: 1,
     };
 
     listCart.value.push(itemcart);
@@ -92,7 +134,6 @@ const viewInvoices = () => {
                 class="block w-full mt-1 text-sm dark:text-gray-300 dark:border-gray-600 dark:bg-gray-700 form-select focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:focus:shadow-outline-gray rounded-md"
                 v-model="form.customer_id"
             >
-                <option>Select A Customer</option>
                 <option
                     v-for="customer in customers"
                     :key="customer.id"
@@ -155,9 +196,16 @@ const viewInvoices = () => {
         </div> -->
     </div>
 
-    <div class="w-full overflow-hidden rounded-lg shadow-xs">
+    <div class="flex justify-end mb-4">
+        <ButtonLink @click="openModal()">
+            Add Product
+            <i class="bx bx-plus"></i>
+        </ButtonLink>
+    </div>
+
+    <div class="w-full overflow-hidden rounded-lg shadow-xs mb-20">
         <div class="w-full overflow-x-auto">
-            <table class="w-full whitespace-no-wrap">
+            <table class="w-full whitespace-no-wrap" v-if="listCart.length > 0">
                 <thead>
                     <tr
                         class="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase bg-gray-50 dark:text-gray-400 dark:bg-gray-800"
@@ -217,39 +265,52 @@ const viewInvoices = () => {
         </div>
     </div>
 
-    <div class="flex justify-between mt-20 mb-4">
-        <ButtonLink @click="openModal()">
-            Add Product
-            <i class="bx bx-plus"></i>
-        </ButtonLink>
-    </div>
-
     <div
         class="grid grid-cols-1 md:grid-cols-2 text-gray-800 dark:text-gray-300"
     >
-        <div>terms and conditions</div>
+        <div>
+            <label class="block text-sm">
+                <span class="text-gray-700 dark:text-gray-400"
+                    >Terms And Conditions</span
+                >
+                <textarea
+                    class="block w-full mt-1 text-sm dark:text-gray-300 dark:border-gray-600 dark:bg-gray-700 form-textarea focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:focus:shadow-outline-gray rounded-md"
+                    rows="5"
+                    placeholder="Enter some long form content."
+                    v-model="form.terms_and_conditions"
+                ></textarea>
+            </label>
+        </div>
 
-        <div class="px-12">
+        <div class="md:px-16 flex flex-col gap-y-4 mt-4">
             <div class="grid grid-cols-2">
-                <span>Subtotal</span>
-                <span>$342.54</span>
+                <span class="text-2xl flex items-center">Subtotal</span>
+                <span class="text-2xl flex items-center"
+                    >${{ subtotal() }}</span
+                >
             </div>
 
             <div class="grid grid-cols-2">
-                <span>Discount</span>
-                <span>$42.54</span>
+                <span class="flex items-center text-2xl">Discount</span>
+                <input
+                    type="text"
+                    class="block w-4/6 mt-1 text-sm dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:text-gray-300 dark:focus:shadow-outline-gray form-input rounded-md"
+                    v-model="form.discount"
+                />
             </div>
 
             <div class="grid grid-cols-2">
-                <span>Tax</span>
-                <span>$2.54</span>
-            </div>
-
-            <div class="grid grid-cols-2">
-                <span>Total</span>
-                <span>$342.54</span>
+                <span class="text-2xl flex items-center">Total</span>
+                <span class="text-2xl flex items-center">${{ total() }}</span>
             </div>
         </div>
+    </div>
+
+    <div class="flex justify-end mt-10 mb-4">
+        <ButtonLink>
+            Save Invoice
+            <i class="bx bx-plus"></i>
+        </ButtonLink>
     </div>
 
     <!-- Modal backdrop. This what you want to place close to the closing body tag -->

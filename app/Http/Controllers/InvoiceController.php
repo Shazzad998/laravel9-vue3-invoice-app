@@ -70,4 +70,10 @@ class InvoiceController extends Controller
 
         return response()->json($formData);
     }
+
+
+    public function store(Request $request){
+
+
+    }
 }
