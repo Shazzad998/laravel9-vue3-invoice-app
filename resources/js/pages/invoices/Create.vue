@@ -1,6 +1,5 @@
 <script setup>
 import axios from "axios";
-import { stringify } from "querystring";
 import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import ButtonLink from "../../components/ButtonLink.vue";
@@ -34,23 +33,23 @@ onMounted(async () => {
 });
 
 const onSave = () => {
+    let subTotal = 0;
+    subTotal = subtotal();
+
+    let Total = 0;
+    Total = total();
+
     if (listCart.value.length >= 1) {
-        let subtotal = 0;
-        subtotal = subtotal();
-
-        let total = 0;
-        total = total();
-
         const formData = new FormData();
-        formData.append("invoice_item", stringify(listCart.value));
+        formData.append("invoice_items", JSON.stringify(listCart.value));
         formData.append("customer_id", customer_id.value);
         formData.append("date", form.value.date);
         formData.append("due_date", form.value.due_date);
         formData.append("number", form.value.number);
         formData.append("reference", form.value.reference);
         formData.append("discount", form.value.discount);
-        formData.append("subtotal", form.value.subtotal);
-        formData.append("total", form.value.total);
+        formData.append("sub_total", subTotal);
+        formData.append("total", Total);
         formData.append(
             "terms_and_conditions",
             form.value.terms_and_conditions
@@ -74,7 +73,7 @@ const addToCart = (item) => {
     const itemcart = {
         id: item.id,
         item_code: item.item_code,
-        item_description: item.item_description,
+        item_description: item.description,
         unit_price: item.unit_price,
         quantity: 1,
     };
@@ -132,7 +131,7 @@ const viewInvoices = () => {
             <span class="text-gray-700 dark:text-gray-400"> Customer </span>
             <select
                 class="block w-full mt-1 text-sm dark:text-gray-300 dark:border-gray-600 dark:bg-gray-700 form-select focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:focus:shadow-outline-gray rounded-md"
-                v-model="form.customer_id"
+                v-model="customer_id"
             >
                 <option
                     v-for="customer in customers"
@@ -307,7 +306,7 @@ const viewInvoices = () => {
     </div>
 
     <div class="flex justify-end mt-10 mb-4">
-        <ButtonLink>
+        <ButtonLink @click="onSave()">
             Save Invoice
             <i class="bx bx-plus"></i>
         </ButtonLink>

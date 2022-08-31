@@ -18,7 +18,7 @@ class ProductFactory extends Factory
     {
         return [
             'item_code' => 'IC-1000'.rand(10,500),
-            'description' => $this->faker->text,
+            'description' => $this->faker->name,
             'unit_price' => mt_rand(100,1000)
         ];
     }
