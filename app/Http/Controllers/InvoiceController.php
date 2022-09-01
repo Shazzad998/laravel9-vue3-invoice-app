@@ -35,10 +35,9 @@ class InvoiceController extends Controller
     }
 
 
-    public function create(Request $request){
+    public function create(){
 
         $counter = Counter::where('key', 'invoice')->first();
-        $random = Counter::where('key', 'invoice')->first();
 
         $invoice = Invoice::orderBy('id', 'DESC')->first();
 
@@ -64,7 +63,7 @@ class InvoiceController extends Controller
                 'product_id' => null,
                 'profuct' => null,
                 'unit_price' => 0,
-                'uantity' => 1,
+                'qantity' => 0,
             ]
         ];
 

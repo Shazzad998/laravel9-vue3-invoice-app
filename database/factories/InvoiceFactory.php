@@ -17,7 +17,7 @@ class InvoiceFactory extends Factory
     public function definition()
     {
         return [
-            'number' => $this->faker->numberBetween(10,1000),
+            'number' => 'INV-'.$this->faker->numberBetween(1,10),
             'customer_id' => $this->faker->numberBetween(1,5),
             'date' => $this->faker->date,
             'due_date' => $this->faker->date,

@@ -19,7 +19,7 @@ class CounterFactory extends Factory
         return [
         'key' => 'invoice',
         'prefix'=> 'INV-',
-        'value' => 2000
+        'value' => 10
         ];
     }
 }

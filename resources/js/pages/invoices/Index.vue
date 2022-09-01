@@ -28,6 +28,13 @@ const search = async () => {
 const createInvoice = async () => {
     router.push({ name: "invoices.create" });
 };
+
+const showInvoice = (id) => {
+    router.push({
+        name: "invoices.show",
+        params: { id: id },
+    });
+};
 </script>
 
 <template>
@@ -93,7 +100,11 @@ const createInvoice = async () => {
                         :key="invoice.id"
                         v-if="invoices.length > 0"
                     >
-                        <td class="px-4 py-3">#123{{ invoice.number }}</td>
+                        <td class="px-4 py-3">
+                            <a href="#" @click="showInvoice(invoice.id)"
+                                >#{{ invoice.number }}</a
+                            >
+                        </td>
                         <td class="px-4 py-3">
                             {{ invoice.customer?.first_name }}
                         </td>

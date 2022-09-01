@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from "vue-router";
 
 import InvoiceIndex from "@/pages/invoices/Index.vue";
 import InvoiceCreate from "@/pages/invoices/Create.vue";
+import InvoiceShow from "@/pages/invoices/Show.vue";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import NotFound from "@/NotFound.vue";
 const routes = [
@@ -20,6 +21,13 @@ const routes = [
                 path: "/invoices/create",
                 name: "invoices.create",
                 component: InvoiceCreate,
+            },
+
+            {
+                path: "/invoices/:id",
+                name: "invoices.show",
+                component: InvoiceShow,
+                props: true,
             },
 
             {
