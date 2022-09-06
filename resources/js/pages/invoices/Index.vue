@@ -1,29 +1,17 @@
 <script setup>
-import axios from "axios";
 import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import ButtonLink from "../../components/ButtonLink.vue";
+import useInvoice from "../../composable/invoice";
+import Pagination from "../../components/Pagination.vue";
 
 const router = useRouter();
 
-let invoices = ref([]);
-let searchInput = ref("");
+const { invoices, searchInput, getInvoices, search } = useInvoice();
 
 onMounted(async () => {
     getInvoices();
 });
-
-const getInvoices = async () => {
-    let response = await axios.get("/api/invoices");
-    invoices.value = response.data.invoices;
-};
-
-const search = async () => {
-    let response = await axios.get(
-        "/api/search-invoices?s=" + searchInput.value
-    );
-    invoices.value = response.data.invoices;
-};
 
 const createInvoice = async () => {
     router.push({ name: "invoices.create" });
@@ -96,9 +84,9 @@ const showInvoice = (id) => {
                 >
                     <tr
                         class="text-gray-700 dark:text-gray-400"
-                        v-for="invoice in invoices"
+                        v-for="invoice in invoices.data"
                         :key="invoice.id"
-                        v-if="invoices.length > 0"
+                        v-if="invoices.data?.length > 0"
                     >
                         <td class="px-4 py-3">
                             <a href="#" @click="showInvoice(invoice.id)"
@@ -106,7 +94,7 @@ const showInvoice = (id) => {
                             >
                         </td>
                         <td class="px-4 py-3">
-                            {{ invoice.customer?.first_name }}
+                            {{ invoice.customer }}
                         </td>
                         <td class="px-4 py-3 text-sm">$ {{ invoice.total }}</td>
                         <td class="px-4 py-3 text-xs">
@@ -186,107 +174,11 @@ const showInvoice = (id) => {
                 </tbody>
             </table>
         </div>
-        <div
-            class="grid px-4 py-3 text-xs font-semibold tracking-wide text-gray-500 uppercase border-t dark:border-gray-700 bg-gray-50 sm:grid-cols-9 dark:text-gray-400 dark:bg-gray-800"
-        >
-            <span class="flex items-center col-span-3">
-                Showing 21-30 of 100
-            </span>
-            <span class="col-span-2"></span>
-            <!-- Pagination -->
-            <span class="flex col-span-4 mt-2 sm:mt-auto sm:justify-end">
-                <nav aria-label="Table navigation">
-                    <ul class="inline-flex items-center">
-                        <li>
-                            <button
-                                class="px-3 py-1 rounded-md rounded-l-lg focus:outline-none focus:shadow-outline-purple"
-                                aria-label="Previous"
-                            >
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke-width="1.5"
-                                    stroke="currentColor"
-                                    class="w-3 h-3"
-                                >
-                                    <path
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        d="M15.75 19.5L8.25 12l7.5-7.5"
-                                    />
-                                </svg>
-                            </button>
-                        </li>
-                        <li>
-                            <button
-                                class="px-3 py-1 rounded-md focus:outline-none focus:shadow-outline-purple"
-                            >
-                                1
-                            </button>
-                        </li>
-                        <li>
-                            <button
-                                class="px-3 py-1 rounded-md focus:outline-none focus:shadow-outline-purple"
-                            >
-                                2
-                            </button>
-                        </li>
-                        <li>
-                            <button
-                                class="px-3 py-1 text-white transition-colors duration-150 bg-purple-600 border border-r-0 border-purple-600 rounded-md focus:outline-none focus:shadow-outline-purple"
-                            >
-                                3
-                            </button>
-                        </li>
-                        <li>
-                            <button
-                                class="px-3 py-1 rounded-md focus:outline-none focus:shadow-outline-purple"
-                            >
-                                4
-                            </button>
-                        </li>
-                        <li>
-                            <span class="px-3 py-1">...</span>
-                        </li>
-                        <li>
-                            <button
-                                class="px-3 py-1 rounded-md focus:outline-none focus:shadow-outline-purple"
-                            >
-                                8
-                            </button>
-                        </li>
-                        <li>
-                            <button
-                                class="px-3 py-1 rounded-md focus:outline-none focus:shadow-outline-purple"
-                            >
-                                9
-                            </button>
-                        </li>
-                        <li>
-                            <button
-                                class="px-3 py-1 rounded-md rounded-r-lg focus:outline-none focus:shadow-outline-purple"
-                                aria-label="Next"
-                            >
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke-width="1.5"
-                                    stroke="currentColor"
-                                    class="w-3 h-3"
-                                >
-                                    <path
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        d="M8.25 4.5l7.5 7.5-7.5 7.5"
-                                    />
-                                </svg>
-                            </button>
-                        </li>
-                    </ul>
-                </nav>
-            </span>
-        </div>
+
+        <Pagination
+            v-if="invoices.meta"
+            :meta="invoices.meta"
+            :label="invoices.meta?.links"
+        />
     </div>
 </template>

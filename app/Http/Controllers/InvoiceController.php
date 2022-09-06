@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\InvoiceResource;
 use App\Models\Counter;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
@@ -9,49 +10,48 @@ use Illuminate\Http\Request;
 
 class InvoiceController extends Controller
 {
-    public function index(){
+    public function index()
+    {
 
-        $invoices = Invoice::with('customer')->orderBy('id', "DESC")->get();
+        $invoices = Invoice::with('customer')->orderBy('id', "DESC")->paginate(10);
 
-        return response()->json([
-            'invoices' => $invoices
-        ], 200);
+        return InvoiceResource::collection($invoices);
     }
 
-    public function search_invoice(Request $request){
+    public function search_invoice(Request $request)
+    {
 
         $search_input = $request->get('s');
 
-        if($search_input != null){
-            $invoices = Invoice::with('customer')->where('id', 'LIKE', "%$search_input%")->get();
+        if ($search_input != null) {
+            $invoices = Invoice::with('customer')->where('id', 'LIKE', "%$search_input%")->paginate(10);
 
-            return response()->json([
-                'invoices' => $invoices
-            ], 200);
-        }else{
+            return InvoiceResource::collection($invoices);
+        } else {
 
             return $this->index();
         }
     }
 
 
-    public function create(){
+    public function create()
+    {
 
         $counter = Counter::where('key', 'invoice')->first();
 
         $invoice = Invoice::orderBy('id', 'DESC')->first();
 
-        if($invoice){
-            $invoice = $invoice->id+1;
+        if ($invoice) {
+            $invoice = $invoice->id + 1;
             $counters = $counter->value + $invoice;
-        }else{
+        } else {
             $counters = $counter->value;
         }
 
 
 
         $formData = [
-            'number' => $counter->prefix.$counters,
+            'number' => $counter->prefix . $counters,
             'customer_id' => null,
             'customer' => null,
             'date' => date('Y-m-d'),
@@ -72,26 +72,27 @@ class InvoiceController extends Controller
     }
 
 
-    public function store(Request $request){
+    public function store(Request $request)
+    {
 
         $invoice_items = $request->invoice_items;
 
-        $invoice_data['sub_total']= $request->sub_total;
-        $invoice_data['total']= $request->total;
-        $invoice_data['customer_id']= $request->customer_id;
-        $invoice_data['number']= $request->number;
-        $invoice_data['date']= $request->date;
-        $invoice_data['due_date']= $request->due_date;
-        $invoice_data['discount']= $request->discount;
-        $invoice_data['reference']= $request->reference;
-        $invoice_data['terms_and_conditions']= $request->terms_and_conditions;
+        $invoice_data['sub_total'] = $request->sub_total;
+        $invoice_data['total'] = $request->total;
+        $invoice_data['customer_id'] = $request->customer_id;
+        $invoice_data['number'] = $request->number;
+        $invoice_data['date'] = $request->date;
+        $invoice_data['due_date'] = $request->due_date;
+        $invoice_data['discount'] = $request->discount;
+        $invoice_data['reference'] = $request->reference;
+        $invoice_data['terms_and_conditions'] = $request->terms_and_conditions;
 
 
 
         $invoice = Invoice::create($invoice_data);
 
 
-        foreach(json_decode($invoice_items) as $item){
+        foreach (json_decode($invoice_items) as $item) {
             $itemData['product_id'] = $item->id;
             $itemData['invoice_id'] = $invoice->id;
             $itemData['quantity'] = $item->quantity;
@@ -100,8 +101,6 @@ class InvoiceController extends Controller
 
 
             InvoiceItem::create($itemData);
-
         }
-
     }
 }
