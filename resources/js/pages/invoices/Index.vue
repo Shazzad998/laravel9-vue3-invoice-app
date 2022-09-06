@@ -179,6 +179,7 @@ const showInvoice = (id) => {
             v-if="invoices.meta"
             :meta="invoices.meta"
             :label="invoices.meta?.links"
+            @getData="getInvoices"
         />
     </div>
 </template>

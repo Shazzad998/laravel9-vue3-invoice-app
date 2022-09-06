@@ -4,8 +4,6 @@ import useInvoice from "../composable/invoice";
 const props = defineProps({
     meta: Object,
 });
-
-const { getInvoices } = useInvoice();
 </script>
 
 <template>
@@ -28,7 +26,7 @@ const { getInvoices } = useInvoice();
                             ]"
                             :disabled="!link.url"
                             aria-label="Previous"
-                            @click="getInvoices(link.url.slice(-1))"
+                            @click="$emit('getData', link.url.slice(-1))"
                             v-html="link.label"
                         ></button>
                     </li>
