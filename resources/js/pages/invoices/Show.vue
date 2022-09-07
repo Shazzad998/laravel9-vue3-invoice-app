@@ -1,9 +1,22 @@
-<script setup></script>
+<script setup>
+import { onMounted } from "vue";
+import useInvoice from "../../composable/invoice";
+
+const props = defineProps({
+    id: String,
+});
+
+const { invoice, getInvoice } = useInvoice();
+
+onMounted(async () => {
+    getInvoice(props.id);
+});
+</script>
 
 <template>
     <div class="mt-20 text-gray-200 mx-56 bg-gray-800 p-16 rounded-lg">
         <div class="flex justify-between items-start">
-            <h1 class="text-4xl font-black">Invoice #INV-34123</h1>
+            <h1 class="text-4xl font-black">Invoice #{{ invoice.number }}</h1>
             <div class="flex flex-col gap-y-2">
                 <h1 class="font-semibold text-lg">Themesberg Inc.</h1>
                 <p>291 N 4th St, San Jose, CA 95112, USA</p>
@@ -29,34 +42,36 @@
                             class="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b dark:border-gray-700 bg-gray-50 dark:text-gray-400 dark:bg-gray-900"
                         >
                             <th class="px-4 py-3">Item Description</th>
-                            <th class="px-4 py-3">Amount</th>
+                            <th class="px-4 py-3">Unit Price</th>
                             <th class="px-4 py-3">Quantity</th>
-                            <th class="px-4 py-3">Discount</th>
                             <th class="px-4 py-3">Total</th>
                         </tr>
                     </thead>
                     <tbody
                         class="bg-white divide-y dark:divide-gray-700 dark:bg-gray-800"
                     >
-                        <tr class="text-gray-700 dark:text-gray-400">
+                        <tr
+                            class="text-gray-700 dark:text-gray-400"
+                            v-for="item in invoice.invoice_items"
+                        >
                             <td class="px-4 py-3">
                                 <div class="flex items-center text-sm">
                                     <div>
                                         <p class="font-semibold">
-                                            Pixel Design System
-                                        </p>
-                                        <p
-                                            class="text-xs text-gray-600 dark:text-gray-400"
-                                        >
-                                            Html components
+                                            {{ item.product.description }}
                                         </p>
                                     </div>
                                 </div>
                             </td>
-                            <td class="px-4 py-3 text-sm">$ 863.45</td>
-                            <td class="px-4 py-3 text-xs">3</td>
-                            <td class="px-4 py-3 text-sm">$42</td>
-                            <td class="px-4 py-3 text-sm">$1234</td>
+                            <td class="px-4 py-3 text-sm">
+                                $ {{ item.product.unit_price }}
+                            </td>
+                            <td class="px-4 py-3 text-xs">
+                                {{ item.quantity }}
+                            </td>
+                            <td class="px-4 py-3 text-sm">
+                                ${{ item.product.unit_price * item.quantity }}
+                            </td>
                         </tr>
                     </tbody>
                 </table>
@@ -70,14 +85,14 @@
                 <div class="flex justify-between items-center gap-x-8">
                     <span class="text-gray-500">Subtotal</span>
                     <span class="text-xl text-gray-800 dark:text-gray-200"
-                        >$6575</span
+                        >${{ invoice.sub_total }}</span
                     >
                 </div>
 
                 <div class="flex justify-between items-center gap-x-8">
                     <span class="text-gray-500">Discount</span>
                     <span class="text-xl text-gray-800 dark:text-gray-200"
-                        >$23</span
+                        >${{ invoice.discount }}</span
                     >
                 </div>
 
@@ -85,7 +100,7 @@
                     <span class="text-xl text-gray-800 dark:text-gray-200"
                         >Total</span
                     ><span class="text-xl text-gray-800 dark:text-gray-200"
-                        >$2343</span
+                        >${{ invoice.total }}</span
                     >
                 </div>
             </div>

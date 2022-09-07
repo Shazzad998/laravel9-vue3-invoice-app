@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\InvoiceResource;
+use App\Http\Resources\InvoiceShowResource;
 use App\Models\Counter;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
@@ -102,5 +103,13 @@ class InvoiceController extends Controller
 
             InvoiceItem::create($itemData);
         }
+    }
+
+
+
+    public function show($id)
+    {
+        $invoice = Invoice::with('customer', 'invoice_items.product')->findOrFail($id);
+        return new InvoiceShowResource($invoice);
     }
 }

@@ -12,7 +12,14 @@ class Invoice extends Model
     protected $fillable = ['customer_id', 'total', 'sub_total', 'date', 'due_date', 'reference', 'discount', 'number', 'terms_and_conditions'];
 
 
-    public function customer(){
+    public function customer()
+    {
         return $this->belongsTo(Customer::class);
+    }
+
+
+    public function invoice_items()
+    {
+        return $this->hasMany(InvoiceItem::class);
     }
 }

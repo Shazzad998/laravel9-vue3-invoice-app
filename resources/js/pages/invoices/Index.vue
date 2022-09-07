@@ -1,28 +1,21 @@
 <script setup>
-import { onMounted, ref } from "vue";
-import { useRouter } from "vue-router";
+import { onMounted } from "vue";
 import ButtonLink from "../../components/ButtonLink.vue";
 import useInvoice from "../../composable/invoice";
 import Pagination from "../../components/Pagination.vue";
 
-const router = useRouter();
-
-const { invoices, searchInput, getInvoices, search } = useInvoice();
+const {
+    invoices,
+    searchInput,
+    getInvoices,
+    search,
+    createInvoice,
+    showInvoice,
+} = useInvoice();
 
 onMounted(async () => {
     getInvoices();
 });
-
-const createInvoice = async () => {
-    router.push({ name: "invoices.create" });
-};
-
-const showInvoice = (id) => {
-    router.push({
-        name: "invoices.show",
-        params: { id: id },
-    });
-};
 </script>
 
 <template>
