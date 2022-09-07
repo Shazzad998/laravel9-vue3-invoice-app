@@ -18,7 +18,7 @@ class InvoiceShowResource extends JsonResource
         return [
             'id' => $this->id,
             'number' => $this->number,
-            'customer' => $this->customer,
+            'customer' => new CustomerResource($this->customer),
             'due_date' => Carbon::parse($this->due_date)->toFormattedDateString(),
             'total' => $this->total,
             'sub_total' => $this->sub_total,

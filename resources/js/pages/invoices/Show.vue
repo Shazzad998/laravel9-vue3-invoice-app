@@ -28,9 +28,8 @@ onMounted(async () => {
             <h1 class="text-2xl font-black">Bill To</h1>
             <div class="mt-4">
                 <p class="leading-8 text-gray-600 dark:text-gray-400">
-                    Themesberg Inc., LOUISVILLE, Selby <br />
-                    3864 Johnson Street,United States of America <br />
-                    VAT Code: AA- 1234567890
+                    {{ invoice.customer?.first_name }} <br />
+                    {{ invoice.customer?.address }}
                 </p>
             </div>
         </div>
