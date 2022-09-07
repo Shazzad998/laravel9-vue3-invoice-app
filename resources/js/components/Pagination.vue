@@ -1,6 +1,4 @@
 <script setup>
-import useInvoice from "../composable/invoice";
-
 const props = defineProps({
     meta: Object,
 });
@@ -20,7 +18,7 @@ const props = defineProps({
                 <ul class="inline-flex items-center">
                     <li v-for="link in meta.links">
                         <button
-                            class="px-3 py-1 rounded-md rounded-l-lg focus:outline-none focus:shadow-outline-purple"
+                            class="px-3 py-1 rounded-lg focus:outline-none disabled:text-gray-500 focus:shadow-outline-purple"
                             :class="[
                                 link.active ? 'text-gray-50 bg-indigo-600' : '',
                             ]"
