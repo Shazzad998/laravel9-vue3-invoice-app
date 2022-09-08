@@ -14,13 +14,15 @@ onMounted(async () => {
 </script>
 
 <template>
-    <div class="mt-20 text-gray-200 mx-56 bg-gray-800 p-16 rounded-lg">
+    <div
+        class="mt-20 text-gray-800 dark:text-gray-200 mx-56 bg-white shadow-2xl dark:bg-gray-800 p-16 rounded-lg"
+    >
         <div class="flex justify-between items-start">
             <h1 class="text-4xl font-black">Invoice #{{ invoice.number }}</h1>
             <div class="flex flex-col gap-y-2">
                 <h1 class="font-semibold text-lg">Themesberg Inc.</h1>
                 <p>291 N 4th St, San Jose, CA 95112, USA</p>
-                <p class="text-gray-500">August 1, 2021</p>
+                <p class="text-gray-500">{{ invoice.created_at }}</p>
             </div>
         </div>
 

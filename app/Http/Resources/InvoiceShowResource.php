@@ -24,6 +24,7 @@ class InvoiceShowResource extends JsonResource
             'sub_total' => $this->sub_total,
             'discount' => $this->discount,
             'invoice_items' =>  InvoiceItemResource::collection($this->invoice_items),
+            'created_at' => $this->created_at->toFormattedDateString()
 
         ];
     }
