@@ -11,13 +11,19 @@ const { invoice, getInvoice } = useInvoice();
 onMounted(async () => {
     getInvoice(props.id);
 });
+
+const print = () => {
+    window.print();
+};
 </script>
 
 <template>
     <div
-        class="mt-20 text-gray-800 dark:text-gray-200 mx-56 bg-white shadow-2xl dark:bg-gray-800 p-16 rounded-lg"
+        class="mt-20 text-gray-800 dark:text-gray-200 mx-56 bg-white shadow-2xl dark:bg-gray-800 p-16 rounded-lg print:shadow-none print:m-0"
     >
-        <div class="flex justify-between items-start">
+        <div
+            class="flex justify-between items-start print:text-black print:dark:text-black"
+        >
             <h1 class="text-4xl font-black">Invoice #{{ invoice.number }}</h1>
             <div class="flex flex-col gap-y-2">
                 <h1 class="font-semibold text-lg">Themesberg Inc.</h1>
@@ -27,9 +33,15 @@ onMounted(async () => {
         </div>
 
         <div class="mt-20">
-            <h1 class="text-2xl font-black">Bill To</h1>
+            <h1
+                class="text-2xl font-black print:text-black print:dark:text-black"
+            >
+                Bill To
+            </h1>
             <div class="mt-4">
-                <p class="leading-8 text-gray-600 dark:text-gray-400">
+                <p
+                    class="leading-8 text-gray-600 dark:text-gray-400 print:text-black print:dark:text-black"
+                >
                     {{ invoice.customer?.first_name }} <br />
                     {{ invoice.customer?.address }}
                 </p>
@@ -40,7 +52,7 @@ onMounted(async () => {
                 <table class="w-full whitespace-no-wrap">
                     <thead>
                         <tr
-                            class="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b dark:border-gray-700 bg-gray-50 dark:text-gray-400 dark:bg-gray-900"
+                            class="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b dark:border-gray-700 bg-gray-50 dark:text-gray-400 dark:bg-gray-900 print:text-black print:dark:text-black"
                         >
                             <th class="px-4 py-3">Item Description</th>
                             <th class="px-4 py-3">Unit Price</th>
@@ -52,7 +64,7 @@ onMounted(async () => {
                         class="bg-white divide-y dark:divide-gray-700 dark:bg-gray-800"
                     >
                         <tr
-                            class="text-gray-700 dark:text-gray-400"
+                            class="text-gray-700 dark:text-gray-400 print:text-black print:dark:text-black"
                             v-for="item in invoice.invoice_items"
                         >
                             <td class="px-4 py-3">
@@ -84,27 +96,39 @@ onMounted(async () => {
                 class="flex flex-col gap-y-4 col-start-3 uppercase font-semibold"
             >
                 <div class="flex justify-between items-center gap-x-8">
-                    <span class="text-gray-500">Subtotal</span>
-                    <span class="text-xl text-gray-800 dark:text-gray-200"
+                    <span
+                        class="text-gray-500 print:text-black print:dark:text-black"
+                        >Subtotal</span
+                    >
+                    <span
+                        class="text-xl text-gray-800 dark:text-gray-200 print:text-black print:dark:text-black"
                         >${{ invoice.sub_total }}</span
                     >
                 </div>
 
                 <div class="flex justify-between items-center gap-x-8">
-                    <span class="text-gray-500">Discount</span>
-                    <span class="text-xl text-gray-800 dark:text-gray-200"
+                    <span
+                        class="text-gray-500 print:text-black print:dark:text-black"
+                        >Discount</span
+                    >
+                    <span
+                        class="text-xl text-gray-800 dark:text-gray-200 print:text-black print:dark:text-black"
                         >${{ invoice.discount }}</span
                     >
                 </div>
 
-                <div class="flex justify-between gap-x-8">
-                    <span class="text-xl text-gray-800 dark:text-gray-200"
-                        >Total</span
-                    ><span class="text-xl text-gray-800 dark:text-gray-200"
-                        >${{ invoice.total }}</span
-                    >
+                <div
+                    class="flex justify-between gap-x-8 text-xl text-gray-800 print:text-black print:dark:text-black dark:text-gray-200"
+                >
+                    <span>Total</span><span>${{ invoice.total }}</span>
                 </div>
             </div>
         </div>
+    </div>
+
+    <div class="print:hidden">
+        <button @click="print" class="bg-indigo-500 px-10 py-2 text-gray-100">
+            Print
+        </button>
     </div>
 </template>

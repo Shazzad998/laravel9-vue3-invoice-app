@@ -5,7 +5,7 @@
     >
         <!-- Desktop sidebar -->
         <aside
-            class="z-20 hidden w-64 overflow-y-auto bg-white dark:bg-gray-800 md:block flex-shrink-0 shadow-md"
+            class="z-20 hidden w-64 overflow-y-auto bg-white dark:bg-gray-800 md:block flex-shrink-0 shadow-md print:hidden"
         >
             <div class="py-4 text-gray-500 dark:text-gray-400">
                 <router-link
@@ -54,7 +54,7 @@
         <!-- Mobile sidebar -->
 
         <aside
-            class="fixed inset-y-0 z-20 flex-shrink-0 w-64 mt-16 overflow-y-auto bg-white dark:bg-gray-800 md:hidden -translate-x-full transition-all duration-200"
+            class="fixed inset-y-0 z-20 flex-shrink-0 w-64 mt-16 overflow-y-auto bg-white dark:bg-gray-800 md:hidden -translate-x-full transition-all duration-200 print:hidden"
             :class="[isSideMenuOpen ? '-translate-x-0' : '']"
             @keydown.escape="closeSideMenu"
         >
@@ -326,7 +326,9 @@
             </div>
         </aside>
         <div class="flex flex-col flex-1 w-full">
-            <header class="z-10 py-4 bg-white shadow-md dark:bg-gray-800">
+            <header
+                class="z-10 py-4 bg-white shadow-md dark:bg-gray-800 print:hidden"
+            >
                 <div
                     class="container flex items-center justify-between h-full px-6 mx-auto text-purple-600 dark:text-purple-300"
                 >
@@ -583,8 +585,13 @@
                     </ul>
                 </div>
             </header>
-            <main class="h-full pb-16 overflow-y-auto" @click="closeSideMenu">
-                <div class="container grid px-6 mx-auto">
+            <main
+                class="h-full pb-16 overflow-y-auto print:overflow-visible"
+                @click="closeSideMenu"
+            >
+                <div
+                    class="container px-6 mx-auto print:max-w-full print:p-0 print:m-0"
+                >
                     <router-view></router-view>
                 </div>
             </main>
