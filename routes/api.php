@@ -16,3 +16,4 @@ Route::resource('/invoices', InvoiceController::class);
 Route::get('/search-invoices', [InvoiceController::class, 'search_invoice']);
 Route::resource('/customers', CustomerController::class);
 Route::resource('/products', ProductController::class);
+Route::get('/delete_invoice_item/{id}', [InvoiceController::class, 'delete_invoice_item']);

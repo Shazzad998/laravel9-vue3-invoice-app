@@ -34,7 +34,18 @@ export default function useInvoice() {
     const getInvoice = async (id) => {
         let response = await axios.get("/api/invoices/" + id);
         invoice.value = response.data.data;
-        console.log(invoice.value);
+    };
+
+    const getEditInvoice = async (id) => {
+        let response = await axios.get("/api/invoices/" + id + "/edit");
+        invoice.value = response.data.data;
+    };
+
+    const deleteInvoiceItem = async (id, i) => {
+        invoice.value.invoice_items.splice(i, 1);
+        if (id != null) {
+            axios.get("/api/delete_invoice_item/" + id);
+        }
     };
 
     return {
@@ -46,5 +57,7 @@ export default function useInvoice() {
         createInvoice,
         showInvoice,
         getInvoice,
+        getEditInvoice,
+        deleteInvoiceItem,
     };
 }

@@ -3,63 +3,29 @@ import axios from "axios";
 import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import ButtonLink from "../../components/ButtonLink.vue";
+import useCustomer from "../../composable/customers";
+import useInvoice from "../../composable/invoice";
+import useProduct from "../../composable/products";
 
 const router = useRouter();
+const props = defineProps({
+    id: String,
+});
+const { customers, getCustomers } = useCustomer();
+const { products, getProducts } = useProduct();
+const { invoice, getEditInvoice, deleteInvoiceItem } = useInvoice();
 
-let form = ref([]);
-let customers = ref([]);
-let customer_id = ref();
-let listCart = ref([]);
-let products = ref([]);
 const isModalOpen = ref(false);
-const subtotal = () => {
-    let total = 0;
-    listCart.value.map((item) => {
-        if (item.quantity) {
-            total = total + item.unit_price * item.quantity;
-        }
-    });
-    return total;
-};
-const total = () => {
-    return subtotal() - form.value.discount;
-};
 
 // functions
 onMounted(async () => {
-    getDefaultData();
     getCustomers();
     getProducts();
+    getEditInvoice(props.id);
 });
 
-const onSave = () => {
-    let subTotal = 0;
-    subTotal = subtotal();
-
-    let Total = 0;
-    Total = total();
-
-    if (listCart.value.length >= 1) {
-        const formData = new FormData();
-        formData.append("invoice_items", JSON.stringify(listCart.value));
-        formData.append("customer_id", customer_id.value);
-        formData.append("date", form.value.date);
-        formData.append("due_date", form.value.due_date);
-        formData.append("number", form.value.number);
-        formData.append("reference", form.value.reference);
-        formData.append("discount", form.value.discount);
-        formData.append("sub_total", subTotal);
-        formData.append("total", Total);
-        formData.append(
-            "terms_and_conditions",
-            form.value.terms_and_conditions
-        );
-
-        axios.post("/api/invoices", formData);
-        listCart.value = [];
-        router.push("/");
-    }
-};
+if (invoice.value) {
+}
 
 const openModal = () => {
     isModalOpen.value = true;
@@ -85,24 +51,6 @@ const addToCart = (item) => {
 
 const removeFromCart = (index) => {
     listCart.value.splice(index, 1);
-};
-
-const getProducts = async () => {
-    let response = await axios.get("/api/products");
-    console.log(response.data);
-    products.value = response.data.products;
-};
-
-const getCustomers = async () => {
-    let response = await axios.get("/api/customers");
-
-    customers.value = response.data.customers;
-};
-
-const getDefaultData = async () => {
-    let response = await axios.get("/api/invoices/create");
-
-    form.value = response.data;
 };
 
 const viewInvoices = () => {
@@ -131,7 +79,6 @@ const viewInvoices = () => {
             <span class="text-gray-700 dark:text-gray-400"> Customer </span>
             <select
                 class="block w-full mt-1 text-sm dark:text-gray-300 dark:border-gray-600 dark:bg-gray-700 form-select focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:focus:shadow-outline-gray rounded-md"
-                v-model="customer_id"
             >
                 <option
                     v-for="customer in customers"
@@ -149,7 +96,7 @@ const viewInvoices = () => {
             <input
                 class="block w-full mt-1 text-sm dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:text-gray-300 dark:focus:shadow-outline-gray form-input rounded-md"
                 placeholder="Jane Doe"
-                v-model="form.number"
+                v-model="invoice.number"
             />
         </label>
 
@@ -158,7 +105,7 @@ const viewInvoices = () => {
             <input
                 class="block w-full mt-1 text-sm dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:text-gray-300 dark:focus:shadow-outline-gray form-input rounded-md"
                 placeholder="Jane Doe"
-                v-model="form.reference"
+                v-model="invoice.reference"
             />
         </label>
 
@@ -168,7 +115,7 @@ const viewInvoices = () => {
                 class="block w-full mt-1 text-sm dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:text-gray-300 dark:focus:shadow-outline-gray form-input rounded-md"
                 placeholder="Jane Doe"
                 type="date"
-                v-model="form.date"
+                v-model="invoice.date"
             />
         </label>
         <label class="block text-sm">
@@ -177,7 +124,7 @@ const viewInvoices = () => {
                 class="block w-full mt-1 text-sm dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:text-gray-300 dark:focus:shadow-outline-gray form-input rounded-md"
                 placeholder="Jane Doe"
                 type="date"
-                v-model="form.due_date"
+                v-model="invoice.due_date"
             />
         </label>
 
@@ -204,7 +151,10 @@ const viewInvoices = () => {
 
     <div class="w-full overflow-hidden rounded-lg shadow-xs mb-20">
         <div class="w-full overflow-x-auto">
-            <table class="w-full whitespace-no-wrap" v-if="listCart.length > 0">
+            <table
+                class="w-full whitespace-no-wrap"
+                v-if="invoice.invoice_items?.length > 0"
+            >
                 <thead>
                     <tr
                         class="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase bg-gray-50 dark:text-gray-400 dark:bg-gray-800"
@@ -218,20 +168,20 @@ const viewInvoices = () => {
                 <tbody class="divide-y dark:divide-gray-700">
                     <tr
                         class="text-gray-700 dark:text-gray-400"
-                        v-for="(itemcart, i) in listCart"
+                        v-for="(itemcart, i) in invoice.invoice_items"
                         :key="itemcart.id"
                     >
                         <td class="px-4 py-3">
                             <div class="flex items-center text-sm">
-                                #{{ itemcart.item_code }}
-                                {{ itemcart.item_description }}
+                                #{{ itemcart.product.item_code }}
+                                {{ itemcart.product.item_description }}
                             </div>
                         </td>
                         <td class="px-4 py-3 text-sm w-44 text-left">
                             <input
                                 type="text"
                                 class="block w-4/6 mt-1 text-sm dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:text-gray-300 dark:focus:shadow-outline-gray form-input rounded-md"
-                                v-model="itemcart.unit_price"
+                                v-model="itemcart.product.unit_price"
                             />
                         </td>
                         <td class="px-4 py-3 text-sm w-44 mr-4">
@@ -245,14 +195,15 @@ const viewInvoices = () => {
                             <div class="flex items-center justify-between">
                                 <span v-if="itemcart.quantity">
                                     ${{
-                                        itemcart.unit_price * itemcart.quantity
+                                        itemcart.product.unit_price *
+                                        itemcart.quantity
                                     }}</span
                                 ><span v-else> $0000</span>
 
                                 <button
                                     class="flex items-center justify-between px-2 py-2 text-lg font-medium leading-5 text-red-500 rounded-lg focus:outline-none focus:shadow-outline-gray"
                                     aria-label="Delete"
-                                    @click="removeFromCart(i)"
+                                    @click="deleteInvoiceItem(itemcart.id, i)"
                                 >
                                     <i class="bx bxs-trash"></i>
                                 </button>
@@ -276,7 +227,7 @@ const viewInvoices = () => {
                     class="block w-full mt-1 text-sm dark:text-gray-300 dark:border-gray-600 dark:bg-gray-700 form-textarea focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:focus:shadow-outline-gray rounded-md"
                     rows="5"
                     placeholder="Enter some long form content."
-                    v-model="form.terms_and_conditions"
+                    v-model="invoice.terms_and_conditions"
                 ></textarea>
             </label>
         </div>
@@ -285,7 +236,7 @@ const viewInvoices = () => {
             <div class="grid grid-cols-2">
                 <span class="text-2xl flex items-center">Subtotal</span>
                 <span class="text-2xl flex items-center"
-                    >${{ subtotal() }}</span
+                    >${{ invoice.sub_total }}</span
                 >
             </div>
 
@@ -294,13 +245,15 @@ const viewInvoices = () => {
                 <input
                     type="text"
                     class="block w-4/6 mt-1 text-sm dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:text-gray-300 dark:focus:shadow-outline-gray form-input rounded-md"
-                    v-model="form.discount"
+                    v-model="invoice.discount"
                 />
             </div>
 
             <div class="grid grid-cols-2">
                 <span class="text-2xl flex items-center">Total</span>
-                <span class="text-2xl flex items-center">${{ total() }}</span>
+                <span class="text-2xl flex items-center"
+                    >${{ invoice.total }}</span
+                >
             </div>
         </div>
     </div>

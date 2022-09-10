@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\InvoiceResource;
+use App\Http\Resources\InvoiceEditResource;
 use App\Http\Resources\InvoiceShowResource;
 use App\Models\Counter;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class InvoiceController extends Controller
 {
@@ -76,6 +78,7 @@ class InvoiceController extends Controller
     public function store(Request $request)
     {
 
+
         $invoice_items = $request->invoice_items;
 
         $invoice_data['sub_total'] = $request->sub_total;
@@ -111,5 +114,18 @@ class InvoiceController extends Controller
     {
         $invoice = Invoice::with('customer', 'invoice_items.product')->findOrFail($id);
         return new InvoiceShowResource($invoice);
+    }
+
+    public function edit($id)
+    {
+        $invoice = Invoice::with('customer', 'invoice_items.product')->findOrFail($id);
+        return new InvoiceEditResource($invoice);
+    }
+
+
+    public function delete_invoice_item($id)
+    {
+        $invoice_item = InvoiceItem::findOrFail($id);
+        $invoice_item->delete();
     }
 }
