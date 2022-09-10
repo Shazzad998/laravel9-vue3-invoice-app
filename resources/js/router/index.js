@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from "vue-router";
 
 import InvoiceIndex from "@/pages/invoices/Index.vue";
 import InvoiceCreate from "@/pages/invoices/Create.vue";
+import InvoiceEdit from "@/pages/invoices/Edit.vue";
 import InvoiceShow from "@/pages/invoices/Show.vue";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import NotFound from "@/NotFound.vue";
@@ -27,6 +28,13 @@ const routes = [
                 path: "/invoices/:id",
                 name: "invoices.show",
                 component: InvoiceShow,
+                props: true,
+            },
+
+            {
+                path: "/invoices/edit/:id",
+                name: "invoices.edit",
+                component: InvoiceEdit,
                 props: true,
             },
 
