@@ -9,7 +9,7 @@ use App\Models\Counter;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+
 
 class InvoiceController extends Controller
 {
@@ -79,6 +79,7 @@ class InvoiceController extends Controller
     {
 
 
+
         $invoice_items = $request->invoice_items;
 
         $invoice_data['sub_total'] = $request->sub_total;
@@ -91,7 +92,7 @@ class InvoiceController extends Controller
         $invoice_data['reference'] = $request->reference;
         $invoice_data['terms_and_conditions'] = $request->terms_and_conditions;
 
-
+        return response()->json($request);
 
         $invoice = Invoice::create($invoice_data);
 
@@ -121,6 +122,50 @@ class InvoiceController extends Controller
         $invoice = Invoice::with('customer', 'invoice_items.product')->findOrFail($id);
         return new InvoiceEditResource($invoice);
     }
+
+    public function update(Request $request, Invoice $invoice)
+    {
+
+        $invoice_data['sub_total'] = $request->sub_total;
+        $invoice_data['total'] = $request->total;
+        $invoice_data['customer_id'] = $request->customer_id;
+        $invoice_data['number'] = $request->number;
+        $invoice_data['date'] = $request->date;
+        $invoice_data['due_date'] = $request->due_date;
+        $invoice_data['discount'] = $request->discount;
+        $invoice_data['reference'] = $request->reference;
+        $invoice_data['terms_and_conditions'] = $request->terms_and_conditions;
+
+
+        $invoice->update($invoice_data);
+
+        $invoice_items = $request->invoice_items;
+
+        $invoice->invoice_items()->delete();
+
+        foreach (json_decode($invoice_items)  as $item) {
+            $itemData['product_id'] = $item->product->id;
+            $itemData['invoice_id'] = $invoice->id;
+            $itemData['quantity'] = $item->quantity;
+            $itemData['unit_price'] = $item->product->unit_price;
+
+
+
+
+
+            InvoiceItem::create($itemData);
+        }
+    }
+
+
+    public function destroy(Invoice $invoice)
+    {
+        $invoice->invoice_items()->delete();
+        $invoice->delete();
+    }
+
+
+
 
 
     public function delete_invoice_item($id)

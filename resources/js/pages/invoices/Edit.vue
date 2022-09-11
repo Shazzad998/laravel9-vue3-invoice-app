@@ -1,6 +1,6 @@
 <script setup>
 import axios from "axios";
-import { onMounted, ref } from "vue";
+import { onMounted, reactive, ref } from "vue";
 import { useRouter } from "vue-router";
 import ButtonLink from "../../components/ButtonLink.vue";
 import useCustomer from "../../composable/customers";
@@ -17,6 +17,19 @@ const { invoice, getEditInvoice, deleteInvoiceItem } = useInvoice();
 
 const isModalOpen = ref(false);
 
+const formData = reactive({
+    sub_total: "dsf",
+    total: "",
+    customer_id: "",
+    number: "",
+    date: "",
+    due_date: "",
+    discount: "",
+    reference: "",
+    terms_and_conditions: "",
+    invoice_items: "",
+});
+
 // functions
 onMounted(async () => {
     getCustomers();
@@ -24,8 +37,21 @@ onMounted(async () => {
     getEditInvoice(props.id);
 });
 
-if (invoice.value) {
-}
+const subtotal = () => {
+    let total = 0;
+    if (invoice.value.invoice_items) {
+        invoice.value.invoice_items.map((item) => {
+            if (item.quantity) {
+                total = total + item.product.unit_price * item.quantity;
+            }
+        });
+    }
+
+    return total;
+};
+const total = () => {
+    return subtotal() - invoice.value.discount;
+};
 
 const openModal = () => {
     isModalOpen.value = true;
@@ -37,20 +63,43 @@ const closeModal = () => {
 
 const addToCart = (item) => {
     const itemcart = {
-        id: item.id,
-        item_code: item.item_code,
-        item_description: item.description,
-        unit_price: item.unit_price,
         quantity: 1,
+        product: {
+            id: item.id,
+            item_code: item.item_code,
+            description: item.description,
+            unit_price: item.unit_price,
+        },
     };
 
-    listCart.value.push(itemcart);
+    invoice.value.invoice_items.push(itemcart);
 
     closeModal();
 };
 
-const removeFromCart = (index) => {
-    listCart.value.splice(index, 1);
+const update = () => {
+    if (invoice.value.invoice_items.length >= 1) {
+        let subTotal = 0;
+        subTotal = subtotal();
+
+        let Total = 0;
+        Total = total();
+
+        formData.customer_id = invoice.value.customer.id;
+        formData.sub_total = subTotal;
+        formData.total = Total;
+        formData.date = invoice.value.date;
+        formData.due_date = invoice.value.due_date;
+        formData.number = invoice.value.number;
+        formData.reference = invoice.value.reference;
+        formData.discount = invoice.value.discount;
+        formData.terms_and_conditions = invoice.value.terms_and_conditions;
+        formData.invoice_items = JSON.stringify(invoice.value.invoice_items);
+
+        axios.put(`/api/invoices/${invoice.value.id}`, formData);
+
+        router.push({ name: "invoices.index" });
+    }
 };
 
 const viewInvoices = () => {
@@ -78,7 +127,9 @@ const viewInvoices = () => {
         <label class="block text-sm">
             <span class="text-gray-700 dark:text-gray-400"> Customer </span>
             <select
+                v-if="invoice.customer"
                 class="block w-full mt-1 text-sm dark:text-gray-300 dark:border-gray-600 dark:bg-gray-700 form-select focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:focus:shadow-outline-gray rounded-md"
+                v-model="invoice.customer.id"
             >
                 <option
                     v-for="customer in customers"
@@ -90,6 +141,8 @@ const viewInvoices = () => {
                 </option>
             </select>
         </label>
+        <!--
+        <pre class="text-white text-4xl">{{ customer_id }}</pre> -->
 
         <label class="block text-sm">
             <span class="text-gray-700 dark:text-gray-400">Number</span>
@@ -236,7 +289,7 @@ const viewInvoices = () => {
             <div class="grid grid-cols-2">
                 <span class="text-2xl flex items-center">Subtotal</span>
                 <span class="text-2xl flex items-center"
-                    >${{ invoice.sub_total }}</span
+                    >${{ subtotal() }}</span
                 >
             </div>
 
@@ -251,15 +304,13 @@ const viewInvoices = () => {
 
             <div class="grid grid-cols-2">
                 <span class="text-2xl flex items-center">Total</span>
-                <span class="text-2xl flex items-center"
-                    >${{ invoice.total }}</span
-                >
+                <span class="text-2xl flex items-center">${{ total() }}</span>
             </div>
         </div>
     </div>
 
     <div class="flex justify-end mt-10 mb-4">
-        <ButtonLink @click="onSave()">
+        <ButtonLink @click="update()">
             Save Invoice
             <i class="bx bx-plus"></i>
         </ButtonLink>

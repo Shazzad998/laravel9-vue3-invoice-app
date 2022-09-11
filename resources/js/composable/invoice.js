@@ -48,6 +48,11 @@ export default function useInvoice() {
         }
     };
 
+    const deleteInvoice = async (id) => {
+        await axios.delete("/api/invoices/" + id);
+        await router.push({ name: "invoices.index" });
+    };
+
     return {
         invoices,
         searchInput,
@@ -59,5 +64,6 @@ export default function useInvoice() {
         getInvoice,
         getEditInvoice,
         deleteInvoiceItem,
+        deleteInvoice,
     };
 }

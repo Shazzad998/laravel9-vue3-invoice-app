@@ -9,7 +9,7 @@ const props = defineProps({
     id: String,
 });
 
-const { invoice, getInvoice } = useInvoice();
+const { invoice, getInvoice, deleteInvoice } = useInvoice();
 
 onMounted(async () => {
     getInvoice(props.id);
@@ -47,8 +47,9 @@ const edit = (id) => {
         </button>
 
         <button
+            @click="deleteInvoice(invoice.id)"
             class="flex items-center justify-between px-2 py-2 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-red-600 border border-transparent rounded-full active:bg-red-600 hover:bg-red-700 focus:outline-none focus:shadow-outline-red"
-            aria-label="Edit"
+            aria-label="Delete"
         >
             <svg
                 xmlns="http://www.w3.org/2000/svg"
