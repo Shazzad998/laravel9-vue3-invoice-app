@@ -18,7 +18,21 @@
   </head>
   <body>
 
-    <div id="app"></div>
+    <div id="app">
+
+        <div class=" text-4xl text-black dark:text-white">
+            asdfsadfsadfasdf
+        </div>
+
+        <div>
+
+            <router-view></router-view>
+
+
+        </div>
+
+
+    </div>
 
     {{-- <script src="{{ asset('assets/js/charts-lines.js') }}" defer></script>
     <script src="{{ asset('assets/js/charts-pie.js') }}" defer></script>
